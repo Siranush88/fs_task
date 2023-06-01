@@ -2,6 +2,7 @@ import * as readline from "readline";
 import * as os from 'os';
 import fs from 'fs';
 import path from 'path';
+import { nextTick } from "process";
 
 
 const userInfo = os.userInfo();
@@ -34,7 +35,7 @@ rl.on('SIGINT', () => {
 
 let answerArr = [];
 
-function createCommand(question, new_file_name) {
+function createCommand(question) {
 
     rl.question(question, (answer) => {
 
@@ -74,19 +75,16 @@ function createCommand(question, new_file_name) {
                 }
             });
         } else if (answer == 'ls') {
+
             const pathDir = path.resolve();
+            let arr = [];
 
             fs.readdir(pathDir, (err, files) => {
+
                 for (let file of files) {
-                    fs.stat(file, async (err, stats) => {
-                        let foldersArr = [];
-                        let filesArr = [];
-                        if (stats.isDirectory()) {
-                            foldersArr.push(`${file} --> Folder`);
-                        } else if (stats.isFile()) {
-                            filesArr.push(`${file} --> File`);
-                        }
-                        console.log(foldersArr.join(), filesArr.join());
+                    fs.stat(file, async (err, stats)  => {
+                        stats.isDirectory() ? arr.push({ Name: file, Type: 'directory' }) : arr.push({ Name: file, Type: 'file' });
+                        console.table(arr);
                     });
                 }
             });
