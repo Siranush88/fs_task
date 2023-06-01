@@ -52,38 +52,42 @@ function createCommand(question, new_file_name) {
             fs.copyFile(answerArr[1], answerArr[2], () => {
                 console.log("The copy is created!");
             });
-        }
-        else if (answerArr.length == 3 && answerArr[0] == 'mv') {
+        } else if (answerArr.length == 3 && answerArr[0] == 'mv') {
 
-            let f = path.resolve(answerArr[1]);
-            let newDir = path.join(answerArr[2], f);
+            const currentPath = path.join(answerArr[1])
+            const newPath = path.join(answerArr[2], answerArr[1])
 
-            fs.rename(answerArr[1], newDir, (err) => {
-                mv
-                console.log('File successfully removed!');
-            });
+            fs.rename(currentPath, newPath, function (err) {
+                if (err) {
+                    throw err
+                } else {
+                    console.log("Successfully moved the file!")
+                }
+            })
         }
         else if (answerArr.length == 2 && answerArr[0] == 'rm') {
-            fs.unlink(answerArr[1], () => {
-                console.log('Deleted!');
+            fs.unlink(answerArr[1], (err) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('Deleted!');
+                }
             });
         } else if (answer == 'ls') {
             const pathDir = path.resolve();
-            let filesArr = [];
-            let foldersArr = [];
+
             fs.readdir(pathDir, (err, files) => {
                 for (let file of files) {
-                    fs.stat(file, (err, stats) => {
+                    fs.stat(file, async (err, stats) => {
+                        let foldersArr = [];
+                        let filesArr = [];
                         if (stats.isDirectory()) {
-                            foldersArr.push(`${file} --> Folder \r\n`);
-                            console.log(foldersArr.sort().join());
+                            foldersArr.push(`${file} --> Folder`);
+                        } else if (stats.isFile()) {
+                            filesArr.push(`${file} --> File`);
                         }
-                        else if (stats.isFile()) {
-                            filesArr.push(`${file} --> File \r\n`);
-                            console.log(filesArr.sort().join());
-                        }
-
-                    })
+                        console.log(foldersArr.join(), filesArr.join());
+                    });
                 }
             });
         } else if (answer == '.exit') {
