@@ -2,7 +2,7 @@ import * as readline from "readline";
 import * as os from 'os';
 import fs from 'fs';
 import path from 'path';
-import { nextTick } from "process";
+
 
 
 const userInfo = os.userInfo();
@@ -75,19 +75,16 @@ function createCommand(question) {
                 }
             });
         } else if (answer == 'ls') {
-
             const pathDir = path.resolve();
             let arr = [];
 
-            fs.readdir(pathDir, (err, files) => {
-
-                for (let file of files) {
-                    fs.stat(file, async (err, stats)  => {
-                        stats.isDirectory() ? arr.push({ Name: file, Type: 'directory' }) : arr.push({ Name: file, Type: 'file' });
-                        console.table(arr);
-                    });
-                }
+            var files = fs.readdirSync(pathDir);
+            files.forEach(file => {
+                let fileStat = fs.statSync(pathDir + '/' + file).isDirectory();
+                fileStat ? arr.push({ Name: file, Type: 'directory' }) : arr.push({ Name: file, Type: 'file' });
             });
+            console.table(arr);
+
         } else if (answer == '.exit') {
             console.log(goodByeMessage);
             process.exit();
