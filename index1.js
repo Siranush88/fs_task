@@ -1,6 +1,7 @@
 import * as readline from "readline";
 import * as os from 'os';
 import fs from 'fs';
+import { readdir } from 'node:fs/promises';
 import path from 'path';
 
 
@@ -37,7 +38,7 @@ let answerArr = [];
 
 function createCommand(question) {
 
-    rl.question(question, (answer) => {
+    rl.question(question, async (answer) => {
 
         answerArr = answer.split(' ');
 
@@ -46,7 +47,7 @@ function createCommand(question) {
                 console.log(`The new file is created!`);
             });
         } else if (answerArr.length == 3 && answerArr[0] == 'rn') {
-            fs.rename(answerArr[1], answerArr[2], () => {
+            promises.rename(answerArr[1], answerArr[2], () => {
                 console.log("\nFile Renamed!\n");
             });
         } else if (answerArr.length == 3 && answerArr[0] == 'cp') {
@@ -78,13 +79,12 @@ function createCommand(question) {
             const pathDir = path.resolve();
             let arr = [];
 
-            var files = fs.readdirSync(pathDir);
+            var files = await readdir(pathDir);
             files.forEach(file => {
                 let fileStat = fs.statSync(pathDir + '/' + file).isDirectory();
                 fileStat ? arr.push({ Name: file, Type: 'directory' }) : arr.push({ Name: file, Type: 'file' });
             });
             console.table(arr);
-
         } else if (answer == '.exit') {
             console.log(goodByeMessage);
             process.exit();
